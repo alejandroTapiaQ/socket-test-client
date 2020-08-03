@@ -3,7 +3,7 @@ import { Routes, RouterModule } from '@angular/router';
 
 
 const routes: Routes = [
-  { path: '', loadChildren: () => import('./socket-test/socket-test.module').then(m => m.SocketTestModule) }
+  { path: '', loadChildren: () => import('./socket-test-module/socket-test.module').then(m => m.SocketTestModule) }
 ];
 
 @NgModule({
