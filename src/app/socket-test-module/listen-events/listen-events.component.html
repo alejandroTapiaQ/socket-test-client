@@ -1,0 +1,7 @@
+<ngb-toast *ngIf="show" class="toast-full" [autohide]="false" (hide)="close()">
+  <ng-template ngbToastHeader>
+    <strong class="mx-1">Event Name</strong>
+  </ng-template>
+  <span><strong>Data: </strong></span>
+  <code>json data from event</code>
+</ngb-toast>

@@ -1,17 +1,26 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { SocketTestComponent } from './socket-test/socket-test.component';
+import { PrincipalViewComponent } from './princial-view/principal-view.component';
 import {SocketTestRoutingModule} from './socket-test-routing.module';
-import { NgbAlertModule, NgbNavModule } from '@ng-bootstrap/ng-bootstrap';
+import {NgbAlertModule, NgbNavModule, NgbToastModule} from '@ng-bootstrap/ng-bootstrap';
+import {SocketTestService} from './socket-test.service';
+import { ListenEventsComponent } from './listen-events/listen-events.component';
+import { SetEventsComponent } from './set-events/set-events.component';
+import { EmitEventComponent } from './emit-event/emit-event.component';
+import {FormsModule, ReactiveFormsModule} from "@angular/forms";
 
 
 @NgModule({
-  declarations: [SocketTestComponent],
+  declarations: [PrincipalViewComponent, ListenEventsComponent, SetEventsComponent, EmitEventComponent],
   imports: [
     CommonModule,
     SocketTestRoutingModule,
     NgbAlertModule,
-    NgbNavModule
-  ]
+    NgbNavModule,
+    NgbToastModule,
+    FormsModule,
+    ReactiveFormsModule
+  ],
+  providers: [SocketTestService]
 })
 export class SocketTestModule { }

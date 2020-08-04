@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import {SocketTestComponent} from './socket-test/socket-test.component';
+import {PrincipalViewComponent} from './princial-view/principal-view.component';
 
 const routes: Routes = [
-  { path: '', component: SocketTestComponent }
+  { path: '', component: PrincipalViewComponent }
 ];
 
 @NgModule({

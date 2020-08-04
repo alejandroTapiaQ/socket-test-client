@@ -1,0 +1,125 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <a class="navbar-brand" href="#">Socket Connection Test Client</a>
+</nav>
+<br>
+<div class="container">
+  <div class="card">
+    <div class="card-body">
+      <div class="form-group">
+        <div class="row">
+          <div class="col-md-8">
+            <form [formGroup]="connectForm">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">Url</span>
+                </div>
+                <input
+                  formControlName="url"
+                  type="text"
+                  class="form-control"
+                  placeholder="http://localhost/v1"
+                  aria-label="url"
+                  aria-describedby="basic-addon1"
+                  [ngClass]="{ 'is-invalid': form.url.errors }"
+                >
+                <div *ngIf="form.url.errors" class="invalid-feedback">
+                  <div *ngIf="form.url.errors.required">Url is required</div>
+                </div>
+              </div>
+            </form>
+          </div>
+          <div class="col-md-2">
+            <div class="form-check-inline">
+              <label class="form-check-label">
+                <input type="checkbox" class="form-check-input" [(ngModel)]="useHeaders">Use Headers?
+              </label>
+            </div>
+          </div>
+          <div class="col-md-2">
+            <button class="btn btn-success" [disabled]="connectForm.invalid" (click)="connectSocket()">Connect</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-responsive" *ngIf="useHeaders">
+        <div class="table-wrapper">
+          <div class="table-title">
+            <div class="row">
+              <div class="col-sm-10"><h3>Extra Headers</h3></div>
+              <div class="col-sm-2">
+                <button type="button" class="btn btn-info add-new"><i class="fa fa-plus"></i> Add New</button>
+              </div>
+            </div>
+          </div>
+          <table class="table table-bordered">
+            <thead>
+            <tr>
+              <th>Key</th>
+              <th>Value</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td>John Doe</td>
+              <td>Administration</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <br>
+
+  <div class="row">
+    <div class="col-md-4">
+      <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+        <li [ngbNavItem]="1">
+          <a ngbNavLink>Emit</a>
+          <ng-template ngbNavContent>
+            <app-emit-event></app-emit-event>
+          </ng-template>
+        </li>
+        <li [ngbNavItem]="2">
+          <a ngbNavLink>Events</a>
+          <ng-template ngbNavContent>
+            <div class="card">
+              <div class="card-header">
+                Set events to listen
+              </div>
+              <div class="card-body">
+                <form>
+                  <div class="form-row align-items-center">
+                    <div class="col-auto">
+                      <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="Event Name">
+                    </div>
+                    <div class="col-auto">
+                      <button type="button" class="btn btn-primary mb-2">Add</button>
+                    </div>
+                  </div>
+                </form>
+                <ul class="list-group">
+                  <app-set-events></app-set-events>
+                  <app-set-events></app-set-events>
+                  <app-set-events></app-set-events>
+                </ul>
+              </div>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+
+      <div [ngbNavOutlet]="nav" class="mt-2"></div>
+    </div>
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          Listen Events
+        </div>
+        <div class="card-body">
+          <app-listen-events></app-listen-events>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
