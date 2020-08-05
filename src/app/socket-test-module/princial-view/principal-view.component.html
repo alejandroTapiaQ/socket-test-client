@@ -31,13 +31,16 @@
           <div class="col-md-2">
             <div class="form-check-inline">
               <label class="form-check-label">
-                <input type="checkbox" class="form-check-input" [(ngModel)]="useHeaders">Socket Io Oprions?
+                <input
+                  type="checkbox"
+                  [disabled]="socketConnected"
+                  class="form-check-input" [(ngModel)]="useHeaders">Socket Io Oprions?
               </label>
             </div>
           </div>
           <div class="col-md-2">
             <button class="btn btn-success" [disabled]="connectForm.invalid"  *ngIf="!socketConnected" (click)="connectSocket()">Connect </button>
-            <button class="btn btn-danger" [disabled]="connectForm.invalid" *ngIf="socketConnected" (click)="connectSocket()">Disconnect </button>
+            <button class="btn btn-danger" [disabled]="connectForm.invalid" *ngIf="socketConnected" (click)="disoconnectSocket()">Disconnect </button>
           </div>
         </div>
       </div>
@@ -47,7 +50,7 @@
             <div class="row">
               <div class="col-sm-10"><h3>Options</h3></div>
               <div class="col-sm-2">
-                <button type="button" class="btn btn-info add-new" (click)="addCustomHeader()"><i class="fa fa-plus"></i> Add New</button>
+                <button [disabled]="socketConnected" type="button" class="btn btn-info add-new" (click)="addCustomHeader()"><i class="fa fa-plus"></i> Add New</button>
               </div>
             </div>
           </div>
@@ -71,7 +74,7 @@
                       <input type="text" class="form-control" placeholder="Value" formControlName="value">
                     </td>
                     <td>
-                      <button class="btn btn-danger rounded" (click)="removeCustomHeader(i)">x</button>
+                      <button [disabled]="socketConnected" class="btn btn-danger rounded" (click)="removeCustomHeader(i)">x</button>
                     </td>
                   </tr>
                 </ng-container>

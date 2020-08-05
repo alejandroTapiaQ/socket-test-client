@@ -27,6 +27,7 @@
     "@types/socket.io-client": "^1.4.33",
     "bootstrap": "^4.5.0",
     "lodash-es": "^4.17.15",
+    "ngx-auto-unsubscribe": "^3.0.1",
     "rxjs": "~6.6.2",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
