@@ -1,25 +1,26 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import {FormArray, FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {SocketClientService} from '../../shared/services/socket-client.service';
-import {Subscription} from 'rxjs';
-import {AutoUnsubscribe} from 'ngx-auto-unsubscribe';
-import {EventResponse} from "../interfaces";
+import {Subject} from 'rxjs';
+import {EventResponse} from '../interfaces';
+import {takeUntil} from 'rxjs/operators';
+import indexOf from 'lodash-es/indexOf';
 
 @Component({
   selector: 'app-socket-test',
   templateUrl: './principal-view.component.html',
   styleUrls: ['./principal-view.component.scss']
 })
-@AutoUnsubscribe()
+
 export class PrincipalViewComponent implements OnInit, OnDestroy {
   public useHeaders = false;
   public active = 1;
   public connectForm: FormGroup;
   public headerForm: FormGroup;
+  public listenForm: FormGroup;
   public socketConnected = false;
-  private connectEvent: Subscription;
-  private disconnectEvent: Subscription;
-  private errorEvent: Subscription;
+  public eventList: string[] = [];
+  private onDestroy$ = new Subject();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -34,10 +35,17 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     this.headerForm = this.formBuilder.group({
       headers: this.formBuilder.array([])
     });
+    this.listenForm = this.formBuilder.group({
+      eventName: [null, Validators.required],
+    });
   }
 
   get form() {
     return this.connectForm.controls;
+  }
+
+  get listenForms() {
+    return this.listenForm.controls;
   }
 
   get getFormHeaders() {
@@ -71,25 +79,30 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   }
 
   public connectionStatus() {
-    this.connectEvent = this.socketClientService.listenEvent('error')
+    this.socketClientService.listenEvent('error')
+      .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'error' && message.data.type === 'UnauthorizedError') {
           this.socketConnected = false;
+          this.socketClientService.socketStatusConnection(false);
           this.connectForm.get('url').enable();
           const control = this.headerForm.get('headers') as FormArray;
           control.enable();
         }
       });
-    this.disconnectEvent = this.socketClientService.listenEvent('disconnect')
+    this.socketClientService.listenEvent('disconnect')
+      .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'disconnect') {
           this.disoconnectSocket();
         }
       });
-    this.errorEvent = this.socketClientService.listenEvent('connect')
+    this.socketClientService.listenEvent('connect')
+      .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'connect') {
           this.socketConnected = message.data;
+          this.socketClientService.socketStatusConnection(true);
           this.connectForm.get('url').disable();
           const control = this.headerForm.get('headers') as FormArray;
           control.disable();
@@ -104,5 +117,39 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     control.enable();
   }
 
-  ngOnDestroy() {}
+  public useHeaderChange(): void {
+    const control = this.headerForm.get('headers') as FormArray;
+    control.clear();
+  }
+
+  public addEvent(): void {
+    if (!this.listenForm.invalid) {
+      const { eventName } = this.listenForm.value;
+      this.eventList.push(eventName);
+      this.listenForm.reset();
+    }
+  }
+
+  public removeEvent(eventName: string): void {
+    const index = indexOf(this.eventList, eventName);
+    if (index >= 0) {
+      this.eventList.splice(index, 1);
+    }
+  }
+
+  public trackByNameEvent(index: number, item: string): string {
+    if (!item) {
+      return null;
+    }
+    return item;
+  }
+
+  public clearMessages(): void {
+    this.socketClientService.clearMessages();
+  }
+
+  ngOnDestroy() {
+    this.onDestroy$.next();
+    this.onDestroy$.complete();
+  }
 }

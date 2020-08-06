@@ -1,5 +1,9 @@
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-  <a class="navbar-brand" href="#">Socket Connection Test Client</a>
+<nav class="navbar navbar-expand-lg"
+     [ngClass]="{
+      'navbbg-success bg-success': socketConnected,
+      'navbbg-light bg-light': !socketConnected
+     }">
+  <a class="navbar-brand">Socket Client Tool</a>
 </nav>
 <br>
 <div class="container">
@@ -34,7 +38,10 @@
                 <input
                   type="checkbox"
                   [disabled]="socketConnected"
-                  class="form-check-input" [(ngModel)]="useHeaders">Socket Io Oprions?
+                  class="form-check-input"
+                  [(ngModel)]="useHeaders"
+                  (click)="useHeaderChange()"
+                >Socket Io Oprions?
               </label>
             </div>
           </div>
@@ -44,7 +51,7 @@
           </div>
         </div>
       </div>
-      <div class="table-responsive" *ngIf="useHeaders">
+      <div class="table-responsive-sm" *ngIf="useHeaders">
         <div class="table-wrapper">
           <div class="table-title">
             <div class="row">
@@ -54,65 +61,40 @@
               </div>
             </div>
           </div>
-          <!--          {{customHeaders | json}}-->
           <form [formGroup]="headerForm">
             <table class="table table-bordered">
               <thead>
               <tr>
                 <th>Key</th>
-                <th>Value</th>
+                <th>Value(Text|Json)</th>
                 <th>Remove</th>
               </tr>
               </thead>
               <tbody>
-                <ng-container formArrayName="headers" *ngFor="let group of getFormHeaders.controls ; let i = index">
-                  <tr [formGroupName]="i">
-                    <td>
-                      <input type="text" class="form-control" placeholder="Key" formControlName="key">
-                    </td>
-                    <td>
-                      <input type="text" class="form-control" placeholder="Value" formControlName="value">
-                    </td>
-                    <td>
-                      <button [disabled]="socketConnected" class="btn btn-danger rounded" (click)="removeCustomHeader(i)">x</button>
-                    </td>
-                  </tr>
-                </ng-container>
+              <ng-container formArrayName="headers" *ngFor="let group of getFormHeaders.controls ; let i = index">
+                <tr [formGroupName]="i">
+                  <td>
+                    <input type="text" class="form-control" placeholder="Key" formControlName="key">
+                  </td>
+                  <td>
+                    <input type="text" class="form-control" placeholder="Value" formControlName="value">
+                  </td>
+                  <td>
+                    <button [disabled]="socketConnected" class="btn btn-danger rounded" (click)="removeCustomHeader(i)">x</button>
+                  </td>
+                </tr>
+              </ng-container>
               </tbody>
             </table>
           </form>
-          <!--          <table class="table table-bordered">-->
-          <!--            <thead>-->
-          <!--            <tr>-->
-          <!--              <th>Key</th>-->
-          <!--              <th>Value</th>-->
-          <!--              <th>Remove</th>-->
-          <!--            </tr>-->
-          <!--            </thead>-->
-          <!--            <tbody>-->
-          <!--            <tr *ngFor="let item of customHeaders; let i = index">-->
-          <!--              <td>-->
-          <!--                <input type="text" class="form-control" placeholder="Key" [value]="item.key">-->
-          <!--              </td>-->
-          <!--              <td>-->
-          <!--                <input type="text" class="form-control" placeholder="Value" [value]="item.value">-->
-          <!--              </td>-->
-          <!--              <td>-->
-          <!--                <button class="btn btn-danger rounded" (click)="removeCustomHeader(i)">x</button>-->
-          <!--              </td>-->
-          <!--            </tr>-->
-          <!--            </tbody>-->
-          <!--          </table>-->
         </div>
       </div>
     </div>
   </div>
-
   <br>
-
   <div class="row">
     <div class="col-md-4">
-      <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs">
+      <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs justify-content-center" [destroyOnHide]="false">
         <li [ngbNavItem]="1">
           <a ngbNavLink>Emit</a>
           <ng-template ngbNavContent>
@@ -124,23 +106,30 @@
           <ng-template ngbNavContent>
             <div class="card">
               <div class="card-header">
-                Set events to listen
+                <strong>Set events to listen</strong>
               </div>
-              <div class="card-body">
-                <form>
+              <div class="card-body" style="max-height: 350px; overflow-y: auto">
+                <form [formGroup]="listenForm">
                   <div class="form-row align-items-center">
                     <div class="col-auto">
-                      <input type="text" class="form-control mb-2" id="inlineFormInput" placeholder="Event Name">
+                      <input
+                        formControlName="eventName"
+                        type="text"
+                        class="form-control mb-2"
+                        placeholder="Event Name">
                     </div>
                     <div class="col-auto">
-                      <button type="button" class="btn btn-primary mb-2">Add</button>
+                      <button type="button" class="btn btn-primary mb-2" (click)="addEvent()" [disabled]="!socketConnected">Add</button>
                     </div>
                   </div>
                 </form>
                 <ul class="list-group">
-                  <app-set-events></app-set-events>
-                  <app-set-events></app-set-events>
-                  <app-set-events></app-set-events>
+                  <app-set-events
+                    *ngFor="let name of eventList; trackBy: trackByNameEvent"
+                    [eventName]="name"
+                    (removeEvent)="removeEvent($event)"
+                  >
+                  </app-set-events>
                 </ul>
               </div>
             </div>
@@ -152,10 +141,11 @@
     </div>
     <div class="col-md-8">
       <div class="card">
-        <div class="card-header">
-          Listen Events
+        <div class="card-header container-fluid">
+            <strong>Listen Events</strong>
+            <button class="btn btn-warning float-right" (click)="clearMessages()">Clear</button>
         </div>
-        <div class="card-body">
+        <div class="card-body" style="max-height: 350px; overflow-y: scroll">
           <app-listen-events></app-listen-events>
         </div>
       </div>

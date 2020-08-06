@@ -1,4 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import {SocketClientService} from '../../shared/services/socket-client.service';
+import {Observable} from 'rxjs';
+import {ListEvents} from '../interfaces';
 
 @Component({
   selector: 'app-listen-events',
@@ -6,14 +9,24 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./listen-events.component.scss']
 })
 export class ListenEventsComponent implements OnInit {
-  public show = true;
-  constructor() { }
+  public events: Observable<ListEvents>;
+  constructor(
+    private socketClientService: SocketClientService
+  ) { }
 
   ngOnInit(): void {
+    this.events = this.socketClientService.messageEventSubjectAsObservable$;
   }
 
-  close(): void {
-    this.show = false;
+  public trackByIdEvent(index: number, item: ListEvents): number {
+    if (!item) {
+      return null;
+    }
+    return item.id;
+  }
+
+  public removeMessage(index: number, event: ListEvents): void {
+    this.socketClientService.removeAMessage(event.id);
   }
 
 }

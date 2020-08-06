@@ -1,7 +1,17 @@
-<ngb-toast *ngIf="show" class="toast-full" [autohide]="false" (hide)="close()">
-  <ng-template ngbToastHeader>
-    <strong class="mx-1">Event Name</strong>
-  </ng-template>
-  <span><strong>Data: </strong></span>
-  <code>json data from event</code>
-</ngb-toast>
+<ng-container *ngFor="let event of (events | async); let i=index; trackBy: trackByIdEvent">
+  <ngb-toast
+    class="toast-full"
+    [autohide]="false"
+    (hide)="removeMessage(i, event)"
+  >
+    <ng-template ngbToastHeader>
+      <strong class="mx-1">{{event.eventName}}</strong>
+    </ng-template>
+    <span><strong>Message: </strong></span>
+    <code>
+      <strong>
+        {{event.data | stringify}}
+      </strong>
+    </code>
+  </ngb-toast>
+</ng-container>

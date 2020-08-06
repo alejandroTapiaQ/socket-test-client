@@ -7,11 +7,18 @@ import {SocketTestService} from './socket-test.service';
 import { ListenEventsComponent } from './listen-events/listen-events.component';
 import { SetEventsComponent } from './set-events/set-events.component';
 import { EmitEventComponent } from './emit-event/emit-event.component';
-import {FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {StringifyPipe} from '../shared/pipes/stringify.pipe';
 
 
 @NgModule({
-  declarations: [PrincipalViewComponent, ListenEventsComponent, SetEventsComponent, EmitEventComponent],
+  declarations: [
+    PrincipalViewComponent,
+    ListenEventsComponent,
+    SetEventsComponent,
+    EmitEventComponent,
+    StringifyPipe
+  ],
   imports: [
     CommonModule,
     SocketTestRoutingModule,
