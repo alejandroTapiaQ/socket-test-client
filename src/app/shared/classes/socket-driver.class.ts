@@ -10,17 +10,17 @@ export interface SocketInterface {
   disconnect(): void;
   removeListener(eventName: string): void;
   socketStatus(): boolean;
-  IO(): any;
+  IO<T>(): T;
 }
 
-export abstract class SocketDriverService implements SocketInterface{
+export abstract class SocketDriverClass implements SocketInterface{
   private socket;
 
   connect(url: string, options: ConnectOpts): void {
     this.socket = io(url, options);
   }
 
-  IO(): any {
+  IO<T>(): T {
     return this.socket;
   }
 

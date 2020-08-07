@@ -4,15 +4,16 @@ import each from 'lodash-es/each';
 import orderBy from 'lodash-es/orderBy';
 import findIndex from 'lodash-es/findIndex';
 import ConnectOpts = SocketIOClient.ConnectOpts;
+import Socket = SocketIOClient.Socket;
 import {BehaviorSubject, Observable, Observer} from 'rxjs';
 import {EventResponse, ListEvents} from '../shared/interfaces';
-import {SocketDriverService} from '../shared/classes/socket-driver.service';
+import {SocketDriverClass} from '../shared/classes/socket-driver.class';
 
 @Injectable({
   providedIn: 'root'
 })
 
-export class SocketTestService extends SocketDriverService {
+export class SocketTestService extends SocketDriverClass {
   private connectedSocketSubject = new BehaviorSubject<any>(false);
   public connectedSocketAsObservable$ = this.connectedSocketSubject.asObservable();
   private messageEventSubject = new BehaviorSubject<any>([]);
@@ -51,7 +52,8 @@ export class SocketTestService extends SocketDriverService {
 
   public on(eventName: string): Observable<EventResponse> {
     return new Observable((observer: Observer<EventResponse>) => {
-      this.IO().on(eventName, (data) => {
+      const socket: Socket = this.IO();
+      socket.on(eventName, (data) => {
         if (eventName === 'connect') {
           observer.next({
             data: true,
