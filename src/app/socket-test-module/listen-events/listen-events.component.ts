@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import {SocketClientService} from '../../shared/services/socket-client.service';
 import {Observable} from 'rxjs';
-import {ListEvents} from '../interfaces';
+import {ListEvents} from '../../shared/interfaces';
+import { SocketTestService } from '../socket-test.service';
 
 @Component({
   selector: 'app-listen-events',
@@ -11,11 +11,11 @@ import {ListEvents} from '../interfaces';
 export class ListenEventsComponent implements OnInit {
   public events: Observable<ListEvents>;
   constructor(
-    private socketClientService: SocketClientService
+    private socketTestService: SocketTestService
   ) { }
 
   ngOnInit(): void {
-    this.events = this.socketClientService.messageEventSubjectAsObservable$;
+    this.events = this.socketTestService.messageEventSubjectAsObservable$;
   }
 
   public trackByIdEvent(index: number, item: ListEvents): number {
@@ -26,7 +26,7 @@ export class ListenEventsComponent implements OnInit {
   }
 
   public removeMessage(index: number, event: ListEvents): void {
-    this.socketClientService.removeAMessage(event.id);
+    this.socketTestService.removeAMessage(event.id);
   }
 
 }

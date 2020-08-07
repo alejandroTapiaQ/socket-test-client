@@ -1,8 +1,8 @@
 import {Component, OnInit, Input, Output, EventEmitter, OnDestroy} from '@angular/core';
-import {SocketClientService} from '../../shared/services/socket-client.service';
 import {Subject} from 'rxjs';
 import {takeUntil} from 'rxjs/operators';
-import {EventResponse} from '../interfaces';
+import {EventResponse} from '../../shared/interfaces';
+import { SocketTestService } from '../socket-test.service';
 
 @Component({
   selector: 'app-set-events',
@@ -15,11 +15,11 @@ export class SetEventsComponent implements OnInit, OnDestroy {
   private onDestroy$ = new Subject();
 
   constructor(
-    private socketClientService: SocketClientService
+    private socketTestService: SocketTestService
   ) { }
 
   ngOnInit(): void {
-    this.socketClientService.connectedSocketAsObservable$
+    this.socketTestService.connectedSocketAsObservable$
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((status) => {
         if (status) {
@@ -33,15 +33,15 @@ export class SetEventsComponent implements OnInit, OnDestroy {
   }
 
   private listenEvent(): void {
-    this.socketClientService.listenEvent(this.eventName)
+    this.socketTestService.on(this.eventName)
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
-        this.socketClientService.setListenMessage(message);
+        this.socketTestService.setListenMessage(message);
       });
   }
 
   ngOnDestroy() {
-    this.socketClientService.removeListener(this.eventName);
+    this.socketTestService.removeListener(this.eventName);
     this.onDestroy$.next();
     this.onDestroy$.complete();
   }

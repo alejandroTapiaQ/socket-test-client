@@ -1,7 +1,7 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {SocketClientService} from '../../shared/services/socket-client.service';
 import {Observable} from 'rxjs';
+import { SocketTestService } from '../socket-test.service';
 
 @Component({
     selector: 'app-emit-event',
@@ -16,11 +16,11 @@ export class EmitEventComponent implements OnInit, OnDestroy {
 
   constructor(
     private formBuilder: FormBuilder,
-    private socketClientService: SocketClientService
+    private socketTestService: SocketTestService
   ) { }
 
   ngOnInit(): void {
-    this.socketStatus$ = this.socketClientService.connectedSocketAsObservable$;
+    this.socketStatus$ = this.socketTestService.connectedSocketAsObservable$;
     this.emitForm = this.formBuilder.group({
       eventName: [null, Validators.required],
       message:  [null]
@@ -36,11 +36,11 @@ export class EmitEventComponent implements OnInit, OnDestroy {
       this.showEmmitedMessage = true;
       const { eventName } = this.emitForm.value;
       const { message } = this.emitForm.value;
-      this.socketClientService.emitMessage(eventName, message);
+      this.socketTestService.emit(eventName, message);
       this.emitForm.reset();
       setTimeout(() => {
         this.showEmmitedMessage = false;
-      }, 500);
+      }, 1500);
     }
   }
 

@@ -1,10 +1,10 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 import {FormArray, FormBuilder, FormGroup, Validators} from '@angular/forms';
-import {SocketClientService} from '../../shared/services/socket-client.service';
 import {Subject} from 'rxjs';
-import {EventResponse} from '../interfaces';
+import {EventResponse} from '../../shared/interfaces';
 import {takeUntil} from 'rxjs/operators';
 import indexOf from 'lodash-es/indexOf';
+import { SocketTestService } from '../socket-test.service';
 
 @Component({
   selector: 'app-socket-test',
@@ -20,17 +20,18 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   public listenForm: FormGroup;
   public socketConnected = false;
   public eventList: string[] = [];
+  public alreadyLisenetingEvent = false;
   private onDestroy$ = new Subject();
 
   constructor(
     private formBuilder: FormBuilder,
-    private socketClientService: SocketClientService
+    private socketTestService: SocketTestService
   ) {
   }
 
   ngOnInit(): void {
     this.connectForm = this.formBuilder.group({
-      url: ['http://localhost:8000/v2', [Validators.required, Validators.pattern(/^https?:\/\//)]]
+      url: [null, [Validators.required, Validators.pattern(/^https?:\/\//)]]
     });
     this.headerForm = this.formBuilder.group({
       headers: this.formBuilder.array([])
@@ -38,13 +39,18 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     this.listenForm = this.formBuilder.group({
       eventName: [null, Validators.required],
     });
+    this.socketTestService.connectedSocketAsObservable$
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe((connected) => {
+        this.socketConnected = connected;
+      });
   }
 
   get form() {
     return this.connectForm.controls;
   }
 
-  get listenForms() {
+  get getListenForms() {
     return this.listenForm.controls;
   }
 
@@ -54,8 +60,8 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
 
   public intializeHeaderForm(): FormGroup {
     return this.formBuilder.group({
-      key: ['query'],
-      value: ['token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbiI6eyJpc0JhciI6ZmFsc2UsInpiVXNlcklkIjoiMi11Iiwicm9sZSI6IlpCX0NMSUVOVCIsImZ1bGxOYW1lIjoiRG9uIGNhcmxvcyIsInByb2ZpbGVQaWN0dXJlIjoiIn0sImlhdCI6MTU5NjIwODM3OX0.b5zUDHchGmZUay-9Q1rrxTKP7gBUOo4_RxvNxZBelzQ'],
+      key: [null],
+      value: [null],
     });
   }
 
@@ -63,7 +69,7 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     if (!this.connectForm.invalid) {
       const { url } = this.connectForm.value;
       const { headers } = this.headerForm.value;
-      this.socketClientService.initSocketConnection(url, headers);
+      this.socketTestService.initSocketConnection(url, headers);
       this.connectionStatus();
     }
   }
@@ -79,30 +85,28 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   }
 
   public connectionStatus() {
-    this.socketClientService.listenEvent('error')
+    this.socketTestService.on('error')
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'error' && message.data.type === 'UnauthorizedError') {
-          this.socketConnected = false;
-          this.socketClientService.socketStatusConnection(false);
+          this.socketTestService.socketStatusConnection(false);
           this.connectForm.get('url').enable();
           const control = this.headerForm.get('headers') as FormArray;
           control.enable();
         }
       });
-    this.socketClientService.listenEvent('disconnect')
+    this.socketTestService.on('disconnect')
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'disconnect') {
           this.disoconnectSocket();
         }
       });
-    this.socketClientService.listenEvent('connect')
+    this.socketTestService.on('connect')
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'connect') {
-          this.socketConnected = message.data;
-          this.socketClientService.socketStatusConnection(true);
+          this.socketTestService.socketStatusConnection(true);
           this.connectForm.get('url').disable();
           const control = this.headerForm.get('headers') as FormArray;
           control.disable();
@@ -111,10 +115,11 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   }
 
   public disoconnectSocket(): void {
-    this.socketConnected = this.socketClientService.disconnectSocket();
+    this.socketTestService.disconnectSocket();
     this.connectForm.get('url').enable();
     const control = this.headerForm.get('headers') as FormArray;
     control.enable();
+    this.active = 1;
   }
 
   public useHeaderChange(): void {
@@ -125,7 +130,15 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   public addEvent(): void {
     if (!this.listenForm.invalid) {
       const { eventName } = this.listenForm.value;
-      this.eventList.push(eventName);
+      const index = indexOf(this.eventList, eventName);
+      if (index < 0) {
+        this.eventList.push(eventName);
+      } else {
+        this.alreadyLisenetingEvent = true;
+        setTimeout(() => {
+          this.alreadyLisenetingEvent = false;
+        }, 1500);
+      }
       this.listenForm.reset();
     }
   }
@@ -145,7 +158,7 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   }
 
   public clearMessages(): void {
-    this.socketClientService.clearMessages();
+    this.socketTestService.clearMessages();
   }
 
   ngOnDestroy() {

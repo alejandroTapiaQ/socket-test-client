@@ -3,7 +3,7 @@
       'navbbg-success bg-success': socketConnected,
       'navbbg-light bg-light': !socketConnected
      }">
-  <a class="navbar-brand">Socket Client Tool</a>
+  <span class="navbar-brand">Socket Client Tool</span>
 </nav>
 <br>
 <div class="container">
@@ -95,18 +95,19 @@
   <div class="row">
     <div class="col-md-4">
       <ul ngbNav #nav="ngbNav" [(activeId)]="active" class="nav-tabs justify-content-center" [destroyOnHide]="false">
-        <li [ngbNavItem]="1">
+        <li [ngbNavItem]="1" [disabled]="!socketConnected">
           <a ngbNavLink>Emit</a>
           <ng-template ngbNavContent>
             <app-emit-event></app-emit-event>
           </ng-template>
         </li>
-        <li [ngbNavItem]="2">
+        <li [ngbNavItem]="2" [disabled]="!socketConnected">
           <a ngbNavLink>Events</a>
           <ng-template ngbNavContent>
             <div class="card">
               <div class="card-header">
                 <strong>Set events to listen</strong>
+                <span class="badge badge-warning" *ngIf="alreadyLisenetingEvent">Already Listening Event</span>
               </div>
               <div class="card-body" style="max-height: 350px; overflow-y: auto">
                 <form [formGroup]="listenForm">
@@ -116,10 +117,16 @@
                         formControlName="eventName"
                         type="text"
                         class="form-control mb-2"
-                        placeholder="Event Name">
+                        placeholder="Event Name"
+                        [ngClass]="{ 'is-invalid': getListenForms.eventName.errors }"
+                        (keyup.enter)="addEvent()"
+                      >
+                      <div *ngIf="getListenForms.eventName.errors" class="invalid-feedback">
+                        <div *ngIf="getListenForms.eventName.errors.required">Event name is required</div>
+                      </div>
                     </div>
                     <div class="col-auto">
-                      <button type="button" class="btn btn-primary mb-2" (click)="addEvent()" [disabled]="!socketConnected">Add</button>
+                      <button type="button" class="btn btn-primary mb-2" (click)="addEvent()" [disabled]="listenForm.invalid">Add</button>
                     </div>
                   </div>
                 </form>
@@ -136,7 +143,6 @@
           </ng-template>
         </li>
       </ul>
-
       <div [ngbNavOutlet]="nav" class="mt-2"></div>
     </div>
     <div class="col-md-8">
