@@ -6,6 +6,14 @@ import {takeUntil} from 'rxjs/operators';
 import indexOf from 'lodash-es/indexOf';
 import { SocketTestService } from '../socket-test.service';
 
+/**
+ * Main component
+ *
+ * @export
+ * @class PrincipalViewComponent
+ * @implements {OnInit}
+ * @implements {OnDestroy}
+ */
 @Component({
   selector: 'app-socket-test',
   templateUrl: './principal-view.component.html',
@@ -23,12 +31,23 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   public alreadyLisenetingEvent = false;
   private onDestroy$ = new Subject();
 
+  /**
+   * Creates an instance of PrincipalViewComponent.
+   * @param {FormBuilder} formBuilder
+   * @param {SocketTestService} socketTestService
+   * @memberof PrincipalViewComponent
+   */
   constructor(
     private formBuilder: FormBuilder,
     private socketTestService: SocketTestService
   ) {
   }
 
+  /**
+   * A callback method that is invoked immediately after the default change detector has checked the directive's data-bound properties for the first time, and before any of the view or content children have been checked. It is invoked only once when the directive is instantiated.
+   * @see https://angular.io/api/core/OnInit#ngoninit
+   * @memberof PrincipalViewComponent
+   */
   ngOnInit(): void {
     this.connectForm = this.formBuilder.group({
       url: [null, [Validators.required, Validators.pattern(/^https?:\/\//)]]
@@ -46,18 +65,42 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Get connectForm control
+   *
+   * @readonly
+   * @memberof PrincipalViewComponent
+   */
   get form() {
     return this.connectForm.controls;
   }
 
+  /**
+   * Get listenForm Control
+   *
+   * @readonly
+   * @memberof PrincipalViewComponent
+   */
   get getListenForms() {
     return this.listenForm.controls;
   }
 
-  get getFormHeaders() {
+  /**
+   * Get headerForm control
+   *
+   * @readonly
+   * @memberof PrincipalViewComponent
+   */
+  get getHeaderForm() {
     return this.headerForm.get('headers') as FormArray;
   }
 
+  /**
+   * Initialize header Form
+   *
+   * @returns {FormGroup}
+   * @memberof PrincipalViewComponent
+   */
   public intializeHeaderForm(): FormGroup {
     return this.formBuilder.group({
       key: [null],
@@ -65,6 +108,12 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     });
   }
 
+
+  /**
+   * Connect to socket action
+   *
+   * @memberof PrincipalViewComponent
+   */
   public connectSocket(): void {
     if (!this.connectForm.invalid) {
       const { url } = this.connectForm.value;
@@ -74,17 +123,33 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Include socket options
+   *
+   * @memberof PrincipalViewComponent
+   */
   public addCustomHeader(): void {
     const control = this.headerForm.get('headers') as FormArray;
     control.push(this.intializeHeaderForm());
   }
 
+  /**
+   * Remove socket option
+   *
+   * @param {number} index
+   * @memberof PrincipalViewComponent
+   */
   public removeCustomHeader(index: number): void {
     const control = this.headerForm.get('headers') as FormArray;
     control.removeAt(index);
   }
 
-  public connectionStatus() {
+  /**
+   * Subscribe to some custom events from socket
+   *
+   * @memberof PrincipalViewComponent
+   */
+  public connectionStatus(): void {
     this.socketTestService.on('error')
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
@@ -114,6 +179,11 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
       });
   }
 
+  /**
+   * Disconnect from socket
+   *
+   * @memberof PrincipalViewComponent
+   */
   public disoconnectSocket(): void {
     this.socketTestService.disconnectSocket();
     this.connectForm.get('url').enable();
@@ -122,11 +192,21 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     this.active = 1;
   }
 
-  public useHeaderChange(): void {
+  /**
+   * Header change behabior and clear it control on change
+   *
+   * @memberof PrincipalViewComponent
+   */
+  public headerChange(): void {
     const control = this.headerForm.get('headers') as FormArray;
     control.clear();
   }
 
+  /**
+   * Add event to listen
+   *
+   * @memberof PrincipalViewComponent
+   */
   public addEvent(): void {
     if (!this.listenForm.invalid) {
       const { eventName } = this.listenForm.value;
@@ -143,6 +223,12 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Remove event to listen
+   *
+   * @param {string} eventName
+   * @memberof PrincipalViewComponent
+   */
   public removeEvent(eventName: string): void {
     const index = indexOf(this.eventList, eventName);
     if (index >= 0) {
@@ -150,6 +236,14 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     }
   }
 
+  /**
+   * Track by function for ngfor loop
+   *
+   * @param {number} index index of curent item
+   * @param {string} item item data
+   * @returns {string}
+   * @memberof PrincipalViewComponent
+   */
   public trackByNameEvent(index: number, item: string): string {
     if (!item) {
       return null;
@@ -157,10 +251,20 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     return item;
   }
 
+  /**
+   * Clear all list of events that are listening
+   *
+   * @memberof PrincipalViewComponent
+   */
   public clearMessages(): void {
     this.socketTestService.clearMessages();
   }
 
+  /**
+   * A callback method that performs custom clean-up, invoked immediately before a directive, pipe, or service instance is destroyed.
+   * @see https://angular.io/api/core/OnDestroy#methods
+   * @memberof PrincipalViewComponent
+   */
   ngOnDestroy() {
     this.onDestroy$.next();
     this.onDestroy$.complete();

@@ -9,9 +9,16 @@ import {BehaviorSubject, Observable, Observer} from 'rxjs';
 import {EventResponse, ListEvents} from '../shared/interfaces';
 import {SocketDriverClass} from '../shared/classes/socket-driver.class';
 
+/**
+ * Socket Test service in order to handle socket connection
+ *
+ * @class SocketTestService
+ * @extends {SocketDriverClass}
+ */
 @Injectable({
   providedIn: 'root'
 })
+
 
 export class SocketTestService extends SocketDriverClass {
   private connectedSocketSubject = new BehaviorSubject<any>(false);
@@ -20,11 +27,22 @@ export class SocketTestService extends SocketDriverClass {
   public messageEventSubjectAsObservable$ = this.messageEventSubject.asObservable();
   private listEvents: ListEvents[] = new Array<ListEvents>();
 
+  /**
+   * Creates an instance of SocketTestService.
+   * @memberof SocketTestService
+   */
   constructor() {
     super();
   }
 
-  public initSocketConnection(url: string, headers: ConnectOpts) {
+  /**
+   * Init socket connection
+   *
+   * @param {string} url url string
+   * @param {ConnectOpts} headers Socket options configurations
+   * @memberof SocketTestService
+   */
+  public initSocketConnection(url: string, headers: ConnectOpts): void {
     const jsonParse = (val: string) => {
       try {
         const isJson = JSON.parse(val);
@@ -50,6 +68,14 @@ export class SocketTestService extends SocketDriverClass {
     }, 200);
   }
 
+
+  /**
+   * listen to handle incoming events from socket server function inheritance from socket driver abstract class
+   *
+   * @param {string} eventName Evnet name to listen
+   * @returns {Observable<EventResponse>}
+   * @memberof SocketTestService
+   */
   public on(eventName: string): Observable<EventResponse> {
     return new Observable((observer: Observer<EventResponse>) => {
       const socket: Socket = this.IO();
@@ -77,15 +103,33 @@ export class SocketTestService extends SocketDriverClass {
   }
 
 
+  /**
+   * Set socket status connction
+   *
+   * @param {boolean} connected
+   * @memberof SocketTestService
+   */
   public socketStatusConnection(connected: boolean): void {
     this.connectedSocketSubject.next(connected);
   }
 
+
+  /**
+   * Disconnect from socket
+   *
+   * @memberof SocketTestService
+   */
   public disconnectSocket(): void {
     this.disconnect();
     this.socketStatusConnection(false);
   }
 
+  /**
+   * Manege incoming messages from listened events
+   *
+   * @param {EventResponse} data
+   * @memberof SocketTestService
+   */
   public setListenMessage(data: EventResponse): void {
     const auxData: ListEvents = {
       eventName: data.eventName,
@@ -96,11 +140,24 @@ export class SocketTestService extends SocketDriverClass {
     this.messageEventSubject.next(orderBy(this.listEvents, ['id'], ['desc']));
   }
 
+
+  /**
+   * Clear all messages lsietened
+   *
+   * @memberof SocketTestService
+   */
   public clearMessages(): void {
     this.listEvents = new Array<ListEvents>();
     this.messageEventSubject.next(this.listEvents);
   }
 
+
+  /**
+   * Remove a specific message listened
+   *
+   * @param {number} id
+   * @memberof SocketTestService
+   */
   public removeAMessage(id: number): void {
     const index = findIndex(this.listEvents, { id });
     if (index >= 0) {

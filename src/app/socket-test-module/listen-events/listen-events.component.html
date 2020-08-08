@@ -1,4 +1,4 @@
-<ng-container *ngFor="let event of (events | async); let i=index; trackBy: trackByIdEvent">
+<ng-container *ngFor="let event of (events$ | async); let i=index; trackBy: trackByIdEvent">
   <ngb-toast
     class="toast-full"
     [autohide]="false"

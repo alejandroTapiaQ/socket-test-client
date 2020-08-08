@@ -40,7 +40,7 @@
                   [disabled]="socketConnected"
                   class="form-check-input"
                   [(ngModel)]="useHeaders"
-                  (click)="useHeaderChange()"
+                  (click)="headerChange()"
                 >Socket Io Oprions?
               </label>
             </div>
@@ -71,7 +71,7 @@
               </tr>
               </thead>
               <tbody>
-              <ng-container formArrayName="headers" *ngFor="let group of getFormHeaders.controls ; let i = index">
+              <ng-container formArrayName="headers" *ngFor="let group of getHeaderForm.controls ; let i = index">
                 <tr [formGroupName]="i">
                   <td>
                     <input type="text" class="form-control" placeholder="Key" formControlName="key">
