@@ -1,4 +1,4 @@
-# Socket Test Client Tool
+# Angular Socket Test Client Tool
 The tool was developen on Angular 10 version and it can helps you to test your socket io server.
 
 # Preview
