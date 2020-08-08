@@ -154,16 +154,20 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'error' && message.data.type === 'UnauthorizedError') {
-          this.socketTestService.socketStatusConnection(false);
-          this.connectForm.get('url').enable();
-          const control = this.headerForm.get('headers') as FormArray;
-          control.enable();
+          this.disoconnectSocket();
         }
       });
     this.socketTestService.on('disconnect')
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'disconnect') {
+          this.disoconnectSocket();
+        }
+      });
+    this.socketTestService.on('unauthorized')
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe((message: EventResponse) => {
+        if (message.eventName === 'unauthorized') {
           this.disoconnectSocket();
         }
       });

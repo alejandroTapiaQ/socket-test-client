@@ -61,11 +61,6 @@ export class SocketTestService extends SocketDriverClass {
       });
     }
     this.connect(url, options);
-    setTimeout(() => {
-      if (!this.socketStatus()) {
-        this.disconnect();
-      }
-    }, 200);
   }
 
 
@@ -87,6 +82,12 @@ export class SocketTestService extends SocketDriverClass {
           });
           observer.complete();
         } else if (eventName === 'disconnect') {
+          observer.next({
+            data: false,
+            eventName
+          });
+          observer.complete();
+        } else if (eventName === 'unauthorized') {
           observer.next({
             data: false,
             eventName
