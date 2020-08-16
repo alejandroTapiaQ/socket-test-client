@@ -4,11 +4,14 @@
       'navbbg-light bg-light': !socketConnected
      }">
      <a href="https://github.com/alejandroTapiaQ/socket-test-client" target="_blank">
-      <img src="/assets/github-icon.png" height="30" width="30">
+      <img src="assets/github-icon.png" height="30" width="30">
      </a>
      &nbsp;&nbsp;
      <span class="navbar-brand">Angular Socket Client Tool</span>
 </nav>
+<div class="alert alert-danger" role="alert" *ngIf="showErrorConnection">
+  <b>Error:</b> {{ errorMessage }}
+</div>
 <br>
 <div class="container">
   <div class="card">
@@ -41,7 +44,7 @@
               <label class="form-check-label">
                 <input
                   type="checkbox"
-                  [disabled]="socketConnected"
+                  [disabled]="socketConnected || disableConnectBtn"
                   class="form-check-input"
                   [(ngModel)]="useHeaders"
                   (click)="headerChange()"
@@ -50,7 +53,7 @@
             </div>
           </div>
           <div class="col-md-2">
-            <button class="btn btn-success" [disabled]="connectForm.invalid"  *ngIf="!socketConnected" (click)="connectSocket()">Connect </button>
+            <button class="btn btn-success" [disabled]="disableConnectBtn"  *ngIf="!socketConnected" (click)="connectSocket()">Connect </button>
             <button class="btn btn-danger" [disabled]="connectForm.invalid" *ngIf="socketConnected" (click)="disoconnectSocket()">Disconnect </button>
           </div>
         </div>

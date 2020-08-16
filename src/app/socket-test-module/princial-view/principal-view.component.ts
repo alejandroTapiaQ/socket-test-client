@@ -29,6 +29,9 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
   public socketConnected = false;
   public eventList: string[] = [];
   public alreadyLisenetingEvent = false;
+  public disableConnectBtn = false;
+  public showErrorConnection = false;
+  public errorMessage = null;
   private onDestroy$ = new Subject();
 
   /**
@@ -115,11 +118,12 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
    * @memberof PrincipalViewComponent
    */
   public connectSocket(): void {
-    if (!this.connectForm.invalid) {
+    if (!this.connectForm.invalid && !this.disableConnectBtn) {
       const { url } = this.connectForm.value;
       const { headers } = this.headerForm.value;
       this.socketTestService.initSocketConnection(url, headers);
       this.connectionStatus();
+      this.disableControls();
     }
   }
 
@@ -153,8 +157,15 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
     this.socketTestService.on('error')
       .pipe(takeUntil(this.onDestroy$))
       .subscribe((message: EventResponse) => {
-        if (message.eventName === 'error' && message.data.type === 'UnauthorizedError') {
+        console.log(message);
+        if (message.eventName === 'error') {
           this.disoconnectSocket();
+          this.showErrorConnection = true;
+          this.errorMessage = message.data.message;
+          setTimeout(() => {
+            this.showErrorConnection = false;
+            this.errorMessage = '';
+          }, 3000);
         }
       });
     this.socketTestService.on('disconnect')
@@ -169,6 +180,12 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'unauthorized') {
           this.disoconnectSocket();
+          this.showErrorConnection = true;
+          this.errorMessage = message.data;
+          setTimeout(() => {
+            this.showErrorConnection = false;
+            this.errorMessage = '';
+          }, 3000);
         }
       });
     this.socketTestService.on('connect')
@@ -176,9 +193,21 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
       .subscribe((message: EventResponse) => {
         if (message.eventName === 'connect') {
           this.socketTestService.socketStatusConnection(true);
-          this.connectForm.get('url').disable();
-          const control = this.headerForm.get('headers') as FormArray;
-          control.disable();
+          this.disableControls();
+        }
+      });
+    this.socketTestService.on('connect_error')
+      .pipe(takeUntil(this.onDestroy$))
+      .subscribe((message: EventResponse) => {
+        console.log(message);
+        if (message.eventName === 'connect_error') {
+          this.disoconnectSocket();
+          this.showErrorConnection = true;
+          this.errorMessage = 'Connection socket error';
+          setTimeout(() => {
+            this.showErrorConnection = false;
+            this.errorMessage = '';
+          }, 3000);
         }
       });
   }
@@ -190,9 +219,7 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
    */
   public disoconnectSocket(): void {
     this.socketTestService.disconnectSocket();
-    this.connectForm.get('url').enable();
-    const control = this.headerForm.get('headers') as FormArray;
-    control.enable();
+    this.enableControls();
     this.active = 1;
   }
 
@@ -262,6 +289,30 @@ export class PrincipalViewComponent implements OnInit, OnDestroy {
    */
   public clearMessages(): void {
     this.socketTestService.clearMessages();
+  }
+
+  /**
+   * Enable form controls
+   *
+   * @memberOf PrincipalViewComponent
+   */
+  private enableControls(): void {
+    this.connectForm.get('url').enable();
+    const control = this.headerForm.get('headers') as FormArray;
+    control.enable();
+    this.disableConnectBtn = false;
+  }
+
+  /**
+   * Disable form controls
+   *
+   * @memberOf PrincipalViewComponent
+   */
+  private disableControls(): void {
+    this.connectForm.get('url').disable();
+    const control = this.headerForm.get('headers') as FormArray;
+    control.disable();
+    this.disableConnectBtn = true;
   }
 
   /**
