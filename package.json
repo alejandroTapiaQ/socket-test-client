@@ -4,7 +4,9 @@
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
-    "build": "ng build",
+    "build": "ng build --aot=true --prod=true --buildOptimizer=true --progress=true --optimization=true --deployUrl=/ --baseHref=/ --extractLicenses=true --extractCss=true",
+    "build-github": "ng build --aot=true --prod=true --buildOptimizer=true --progress=true --optimization=true --extractLicenses=true --extractCss=true --baseHref=https://alejandroTapiaQ.github.io/socket-test-client/",
+    "publish-github": "ngh --dir dist/socket-test-client",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
@@ -22,12 +24,11 @@
     "@angular/platform-browser-dynamic": "~10.0.7",
     "@angular/router": "~10.0.7",
     "@ng-bootstrap/ng-bootstrap": "^7.0.0",
-    "@types/socket.io-client": "^1.4.33",
     "bootstrap": "^4.5.0",
     "lodash-es": "^4.17.15",
     "rxjs": "~6.6.2",
-    "socket.io": "^2.3.0",
-    "socket.io-client": "^2.3.0",
+    "socket.io": "^4.3.1",
+    "socket.io-client": "^4.3.2",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"
   },

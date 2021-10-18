@@ -1,6 +1,5 @@
+import { Observable } from 'rxjs';
 import * as io from 'socket.io-client';
-import {Observable, Observer} from 'rxjs';
-import ConnectOpts = SocketIOClient.ConnectOpts;
 import {EventResponse} from '../interfaces';
 /**
  * Socket Interface of abstract class
@@ -9,7 +8,7 @@ import {EventResponse} from '../interfaces';
  * @interface SocketInterface
  */
 export interface SocketInterface {
-  connect(url: string, options: ConnectOpts): void;
+  connect(url: string, options: io.ManagerOptions): void;
   on(eventName: string): Observable<EventResponse>;
   emit<T extends string>(eventName: T, data: T): void;
   disconnect(): void;
@@ -42,8 +41,8 @@ export abstract class SocketDriverClass implements SocketInterface{
    * @param {ConnectOpts} options socket configuration options
    * @memberof SocketDriverClass
    */
-  connect(url: string, options: ConnectOpts): void {
-    this.socket = io(url, options);
+  connect(url: string, options: Partial<io.ManagerOptions>): void {
+    this.socket = io.connect(url, options);
   }
 
   /**

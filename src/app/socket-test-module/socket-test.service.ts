@@ -3,11 +3,10 @@ import size from 'lodash-es/size';
 import each from 'lodash-es/each';
 import orderBy from 'lodash-es/orderBy';
 import findIndex from 'lodash-es/findIndex';
-import ConnectOpts = SocketIOClient.ConnectOpts;
-import Socket = SocketIOClient.Socket;
 import {BehaviorSubject, Observable, Observer} from 'rxjs';
 import {EventResponse, ListEvents} from '../shared/interfaces';
 import {SocketDriverClass} from '../shared/classes/socket-driver.class';
+import { Socket, ManagerOptions, Manager } from 'socket.io-client';
 
 /**
  * Socket Test service in order to handle socket connection
@@ -42,7 +41,7 @@ export class SocketTestService extends SocketDriverClass {
    * @param {ConnectOpts} headers Socket options configurations
    * @memberof SocketTestService
    */
-  public initSocketConnection(url: string, headers: ConnectOpts): void {
+  public initSocketConnection(url: string, headers: Partial<ManagerOptions>): void {
     const jsonParse = (val: string) => {
       try {
         const isJson = JSON.parse(val);
@@ -52,7 +51,7 @@ export class SocketTestService extends SocketDriverClass {
       }
     };
 
-    let options = {
+    let options: Partial<ManagerOptions> = {
       autoConnect: true
     };
     if (size(headers)) {
